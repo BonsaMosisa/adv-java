@@ -1,0 +1,115 @@
+package tempratureconverter;
+
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+
+public class TempratureConverter extends Application {
+
+    private TextField inputField;
+    private ComboBox<String> fromUnitComboBox;
+    private ComboBox<String> toUnitComboBox;
+    private Label resultLabel;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage BonimosStage) {
+        BonimosStage.setTitle("Bonimos Temperature Converter");
+
+        // Create the input field
+        inputField = new TextField();
+        inputField.setPromptText("Enter temperature");
+
+        // Create the unit selection dropdowns
+        fromUnitComboBox = new ComboBox<>();
+        fromUnitComboBox.getItems().addAll("Celsius", "Fahrenheit", "Kelvin");
+        fromUnitComboBox.setValue("Celsius"); // Default selection
+
+        toUnitComboBox = new ComboBox<>();
+        toUnitComboBox.getItems().addAll("Celsius", "Fahrenheit", "Kelvin");
+        toUnitComboBox.setValue("Fahrenheit"); // Default selection
+
+        // Create the convert button
+        Button convertButton = new Button("Convert");
+        convertButton.setOnAction(e -> convertTemperature());
+
+        // Create the result label
+        resultLabel = new Label();
+        resultLabel.setAlignment(Pos.CENTER);
+
+        // Create the layout
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10));
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setAlignment(Pos.CENTER);
+
+        // Add components to the grid
+        grid.add(new Label("From:"), 0, 0);
+        grid.add(fromUnitComboBox, 1, 0);
+        grid.add(new Label("To:"), 0, 1);
+        grid.add(toUnitComboBox, 1, 1);
+        grid.add(new Label("Temperature:"), 0, 2);
+        grid.add(inputField, 1, 2);
+        grid.add(convertButton, 1, 3);
+        grid.add(resultLabel, 0, 4, 2, 1);
+
+        // Set the scene
+        Scene scene = new Scene(grid, 300, 200);
+        BonimosStage.setScene(scene);
+        BonimosStage.show();
+    }
+
+    private void convertTemperature() {
+        try {
+            double inputTemperature = Double.parseDouble(inputField.getText());
+            String fromUnit = fromUnitComboBox.getValue();
+            String toUnit = toUnitComboBox.getValue();
+
+            double result = convert(inputTemperature, fromUnit, toUnit);
+            resultLabel.setText(String.format("%.2f %s = %.2f %s", inputTemperature, fromUnit, result, toUnit));
+        } catch (NumberFormatException e) {
+            resultLabel.setText("Invalid input! Please enter a number.");
+        }
+    }
+
+    private double convert(double temperature, String fromUnit, String toUnit) {
+        // Convert input temperature to Celsius first
+        double celsius;
+        switch (fromUnit) {
+            case "Celsius":
+                celsius = temperature;
+                break;
+            case "Fahrenheit":
+                celsius = (temperature - 32) * 5 / 9;
+                break;
+            case "Kelvin":
+                celsius = temperature - 273.15;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid fromUnit");
+        }
+
+        // Convert Celsius to the target unit
+        switch (toUnit) {
+            case "Celsius":
+                return celsius;
+            case "Fahrenheit":
+                return celsius * 9 / 5 + 32;
+            case "Kelvin":
+                return celsius + 273.15;
+            default:
+                throw new IllegalArgumentException("Invalid toUnit");
+        }
+    }
+}
